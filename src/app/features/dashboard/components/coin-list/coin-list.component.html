@@ -1,0 +1,116 @@
+<div class="list-header">
+    <h2 class="section-title">Cryptocurrency Prices by Market Cap</h2>
+    <div class="search-container">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"
+            class="search-icon">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" class="input-field search-input" placeholder="Search coins..." [ngModel]="searchTerm()"
+            (ngModelChange)="onSearchChange($event)">
+    </div>
+</div>
+
+<div class="bg-card">
+    @if (loading()) {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">24h Change</th>
+                    <th class="text-right hidden-sm">24h Volume</th>
+                    <th class="text-right hidden-xs">Market Cap</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+                <tr>
+                    <td class="table-skeleton-cell">
+                        <div class="coin-cell">
+                            <div class="skeleton-text skeleton" style="width: 20px;"></div>
+                            <div class="skeleton-icon skeleton" style="width: 24px; height: 24px;"></div>
+                            <div class="skeleton-text skeleton"></div>
+                        </div>
+                    </td>
+                    <td class="table-skeleton-cell">
+                        <div class="skeleton-text-right skeleton"></div>
+                    </td>
+                    <td class="table-skeleton-cell">
+                        <div class="skeleton-text-right skeleton"></div>
+                    </td>
+                    <td class="table-skeleton-cell hidden-sm">
+                        <div class="skeleton-text-right skeleton"></div>
+                    </td>
+                    <td class="table-skeleton-cell hidden-xs">
+                        <div class="skeleton-text-right skeleton" style="width: 60px;"></div>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    } @else if (error()) {
+    <app-error-alert message="Failed to load cryptocurrency market data."></app-error-alert>
+    } @else {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Coin</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">24h Change</th>
+                    <th class="text-right hidden-sm">24h Volume</th>
+                    <th class="text-right hidden-xs">Market Cap</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (coin of filteredCoins(); track coin.id) {
+                <tr>
+                    <td>
+                        <a [routerLink]="['/coins', coin.id]" class="coin-cell">
+                            <span class="rank">{{ coin.market_cap_rank }}</span>
+                            <img [src]="coin.image" [alt]="coin.name" class="table-coin-icon">
+                            <div class="coin-name-block">
+                                <span class="name">{{ coin.name }}</span>
+                                <span class="symbol">{{ coin.symbol | uppercase }}</span>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="text-right font-medium">
+                        {{ coin.current_price | currency:'USD':'symbol':'1.2-6' }}
+                    </td>
+                    <td class="text-right font-medium"
+                        [ngClass]="coin.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger'">
+                        <div class="change-cell">
+                            @if (coin.price_change_percentage_24h >= 0) {
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+                                fill="none" class="trend-icon">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                            } @else {
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2"
+                                fill="none" class="trend-icon">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                            }
+                            {{ Math.abs(coin.price_change_percentage_24h) | number:'1.2-2' }}%
+                        </div>
+                    </td>
+                    <td class="text-right hidden-sm">{{ coin.total_volume | currency:'USD':'symbol':'1.0-0' }}</td>
+                    <td class="text-right hidden-xs">{{ coin.market_cap | currency:'USD':'symbol':'1.0-0' }}</td>
+                </tr>
+                }
+                @if (filteredCoins().length === 0) {
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        No coins found matching "{{ searchTerm() }}"
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>

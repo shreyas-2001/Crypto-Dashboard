@@ -1,0 +1,67 @@
+<div class="dashboard-header">
+    <h1 class="page-title">Market Overview</h1>
+    <p class="page-subtitle">Track the latest cryptocurrency prices and trends</p>
+</div>
+
+<section class="trending-section">
+    <h2 class="section-title">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            class="title-icon">
+            <path d="M23 6l-9.5 9.5-5-5L1 18"></path>
+            <polyline points="16 6 23 6 23 13"></polyline>
+        </svg>
+        Trending Coins
+    </h2>
+
+    @if (loadingTrending) {
+    <div class="trending-grid">
+        @for (i of [1,2,3,4]; track i) {
+        <div class="trending-card bg-card loading">
+            <div class="card-header">
+                <div class="skeleton-icon skeleton"></div>
+                <div class="coin-info">
+                    <div class="skeleton-text skeleton"></div>
+                    <div class="skeleton-text-small skeleton"></div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="price-info">
+                    <div class="skeleton-text-small skeleton"></div>
+                    <div class="skeleton-text-small skeleton"></div>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    } @else if (errorTrending) {
+    <app-error-alert message="Could not load trending coins at this time."></app-error-alert>
+    } @else {
+    <div class="trending-grid">
+        @for (coin of trendingCoins; track coin.id) {
+        <div class="trending-card bg-card">
+            <div class="card-header">
+                <img [src]="coin.thumb" [alt]="coin.name" class="coin-icon">
+                <div class="coin-info">
+                    <span class="coin-symbol">{{ coin.symbol | uppercase }}</span>
+                    <span class="coin-name">{{ coin.name }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="price-info">
+                    <span class="label">Market Rank</span>
+                    <span class="value">#{{ coin.market_cap_rank }}</span>
+                </div>
+                <div class="price-info">
+                    <span class="label">Price (BTC)</span>
+                    <span class="value">{{ coin.price_btc | number:'1.8-8' }}</span>
+                </div>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</section>
+
+<section class="market-section">
+    <app-coin-list></app-coin-list>
+</section>

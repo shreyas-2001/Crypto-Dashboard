@@ -1,0 +1,131 @@
+<div class="breadcrumb">
+    <a routerLink="/" class="back-link">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to Dashboard
+    </a>
+</div>
+
+@if (loadingCoin()) {
+<app-loading-spinner message="Loading coin details..."></app-loading-spinner>
+} @else if (errorCoin() || !coin()) {
+<app-error-alert message="Failed to load coin details. Please try again."></app-error-alert>
+} @else {
+<div class="coin-header">
+    <div class="coin-title-group">
+        <img [src]="coin()!.image" [alt]="coin()!.name" class="header-icon">
+        <div class="title-text">
+            <h1 class="page-title">{{ coin()!.name }}</h1>
+            <span class="badge">{{ coin()!.symbol | uppercase }}</span>
+            <span class="badge rank-badge">Rank #{{ coin()!.market_cap_rank }}</span>
+        </div>
+    </div>
+
+    <div class="price-action">
+        <div class="current-price-group">
+            <h2 class="current-price">{{ coin()!.current_price | currency:'USD':'symbol':'1.2-6' }}</h2>
+            <span class="price-change"
+                [ngClass]="coin()!.price_change_percentage_24h >= 0 ? 'text-success' : 'text-danger'">
+                @if (coin()!.price_change_percentage_24h >= 0) {
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                    <polyline points="18 15 12 9 6 15"></polyline>
+                </svg>
+                } @else {
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                }
+                {{ Math.abs(coin()!.price_change_percentage_24h) | number:'1.2-2' }}%
+            </span>
+        </div>
+        <button class="btn-primary" (click)="togglePortfolioForm()">Add to Portfolio</button>
+    </div>
+</div>
+
+@if (showPortfolioForm()) {
+<div class="portfolio-form bg-card">
+    <h3>Add {{ coin()!.name }} to Portfolio</h3>
+    <div class="form-group">
+        <label>Amount of {{ coin()!.symbol | uppercase }}</label>
+        <input type="number" class="input-field" [(ngModel)]="buyAmount" placeholder="0.00">
+    </div>
+    <div class="form-actions">
+        <button class="btn-secondary" (click)="togglePortfolioForm()">Cancel</button>
+        <button class="btn-primary" (click)="addToPortfolio()" [disabled]="buyAmount() <= 0">Save</button>
+    </div>
+</div>
+}
+
+<div class="dashboard-grid">
+    <div class="main-column">
+        <div class="chart-card bg-card">
+            <div class="chart-header">
+                <h3>Price Chart</h3>
+                <div class="timeframe-selector">
+                    <button [class.active]="timeframe() === '1'" (click)="changeTimeframe('1')">1D</button>
+                    <button [class.active]="timeframe() === '7'" (click)="changeTimeframe('7')">7D</button>
+                    <button [class.active]="timeframe() === '30'" (click)="changeTimeframe('30')">30D</button>
+                </div>
+            </div>
+
+            @if (loadingChart()) {
+            <app-loading-spinner message="Loading chart data..."></app-loading-spinner>
+            } @else if (errorChart()) {
+            <app-error-alert message="Failed to load chart data."></app-error-alert>
+            } @else {
+            <app-coin-chart [chartData]="chartData()"></app-coin-chart>
+            }
+        </div>
+
+        <div class="about-card bg-card">
+            <h3>About {{ coin()!.name }}</h3>
+            <div class="description" [innerHTML]="coin()!.description.en || 'No description available for this coin.'">
+            </div>
+        </div>
+    </div>
+
+    <div class="side-column">
+        <div class="stats-card bg-card">
+            <h3>Market Stats</h3>
+
+            <div class="stat-row">
+                <span class="stat-label">Market Cap</span>
+                <span class="stat-value">{{ coin()!.market_cap | currency:'USD':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">24h Volume</span>
+                <span class="stat-value">{{ coin()!.total_volume | currency:'USD':'symbol':'1.0-0' }}</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Circulating Supply</span>
+                <span class="stat-value">{{ coin()!.circulating_supply | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">Total Supply</span>
+                <span class="stat-value">{{ coin()!.total_supply ? (coin()!.total_supply | number:'1.0-0') : '∞'
+                    }}</span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">All Time High</span>
+                <span class="stat-value">
+                    {{ coin()!.ath | currency:'USD':'symbol':'1.2-6' }}
+                    <span class="sub-text"
+                        [ngClass]="coin()!.ath_change_percentage >= 0 ? 'text-success' : 'text-danger'">
+                        ({{ coin()!.ath_change_percentage | number:'1.2-2' }}%)
+                    </span>
+                </span>
+            </div>
+
+            <div class="stat-row">
+                <span class="stat-label">ATH Date</span>
+                <span class="stat-value">{{ coin()!.ath_date | date:'mediumDate' }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+}

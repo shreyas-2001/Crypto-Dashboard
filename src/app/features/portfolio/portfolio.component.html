@@ -1,0 +1,81 @@
+<div class="portfolio-header">
+    <h1 class="page-title">My Portfolio</h1>
+    <p class="page-subtitle">Track your crypto assets</p>
+</div>
+
+<div class="summary-cards">
+    <div class="summary-card bg-card">
+        <div class="card-title">Total Invested</div>
+        <div class="card-value">{{ totalInvested() | currency:'USD' }}</div>
+    </div>
+    <div class="summary-card bg-card">
+        <div class="card-title">Assets Count</div>
+        <div class="card-value">{{ items().length }}</div>
+    </div>
+</div>
+
+<div class="portfolio-content bg-card">
+    <div class="content-header">
+        <h2 class="section-title">Your Assets</h2>
+        <a routerLink="/" class="btn-primary" style="text-decoration: none;">Add More Coins</a>
+    </div>
+
+    @if (items().length === 0) {
+    <div class="empty-state">
+        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none"
+            class="empty-icon">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+        </svg>
+        <h3>No assets found</h3>
+        <p>Your portfolio is currently empty. Go to the dashboard to find coins to track.</p>
+    </div>
+    } @else {
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Asset</th>
+                    <th class="text-right">Holdings</th>
+                    <th class="text-right">Avg. Buy Price</th>
+                    <th class="text-right">Total Invested</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of items(); track item.coinId) {
+                <tr>
+                    <td>
+                        <a [routerLink]="['/coins', item.coinId]" class="coin-cell">
+                            <div class="coin-name-block">
+                                <span class="name">{{ item.name }}</span>
+                                <span class="symbol">{{ item.symbol | uppercase }}</span>
+                            </div>
+                        </a>
+                    </td>
+                    <td class="text-right font-medium">
+                        {{ item.amount | number:'1.2-8' }} {{ item.symbol | uppercase }}
+                    </td>
+                    <td class="text-right">
+                        {{ item.purchasePrice | currency:'USD':'symbol':'1.2-6' }}
+                    </td>
+                    <td class="text-right font-medium">
+                        {{ (item.amount * item.purchasePrice) | currency:'USD' }}
+                    </td>
+                    <td class="text-right">
+                        <button class="btn-delete" (click)="removeCoin(item.coinId)" aria-label="Remove item">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</div>
